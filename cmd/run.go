@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"templates/internal/app/http"
+	"rest-api-controller/internal/app/http"
 
 	"github.com/spf13/cobra"
 )

@@ -3,7 +3,7 @@ package fiber
 import (
 	"context"
 	"fmt"
-	"templates/internal/service/fiber/controller"
+	"rest-api-controller/internal/service/fiber/controller"
 
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"

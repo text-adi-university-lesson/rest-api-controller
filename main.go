@@ -1,6 +1,6 @@
 package main
 
-import "templates/cmd"
+import "rest-api-controller/cmd"
 
 func main() {
 	cmd.Execute()

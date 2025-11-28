@@ -1,9 +1,9 @@
-package entity
+package sensors
 
 import (
-	"templates/internal/module/entity/repository"
-	"templates/internal/module/entity/service"
-	httpController "templates/internal/service/fiber/controller"
+	"rest-api-controller/internal/module/sensors/repository"
+	"rest-api-controller/internal/module/sensors/service"
+	httpController "rest-api-controller/internal/service/fiber/controller"
 
 	"go.uber.org/fx"
 )
@@ -37,6 +37,6 @@ var Module = fx.Module("entity",
 		service.NewService,
 	),
 	fx.Provide(
-		repository.NewExampleRepository,
+		repository.NewLocalRepository,
 	),
 )
