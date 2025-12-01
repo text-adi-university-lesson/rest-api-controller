@@ -1,0 +1,28 @@
+name: Test
+on:
+  workflow_call:
+    inputs:
+      RUNS_ON:
+        type: string
+        default: ubuntu-latest
+      RUFF_CHECK_ENABLE:
+        type: boolean
+        default: false
+      RUFF_SRC:
+        description: "Каталог, який використовується перевірки"
+        type: string
+        required: true
+
+jobs:
+  liner:
+    if: ${{ inputs.RUFF_CHECK_ENABLE }}
+    name: ruff lint Code Base
+    runs-on: ${{ inputs.RUNS_ON }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Lint Code Base
+        uses: astral-sh/ruff-action@v3
+        with:
+          src: ${{ inputs.RUFF_SRC }}
+          args: "--version"
+      - run: ruff check

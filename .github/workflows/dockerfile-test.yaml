@@ -1,0 +1,43 @@
+name: Test
+on:
+  workflow_call:
+    inputs:
+      RUNS_ON:
+        type: string
+        default: ubuntu-latest
+      HADOLINT_CHECK_ENABLE:
+        type: boolean
+        default: false
+      HADOLINT_CHECK_DIR:
+        default: .
+        type: string
+        description: Path to file
+
+jobs:
+  vars:
+    name: Generation vars
+    runs-on: ${{ inputs.RUNS_ON }}
+    outputs:
+      paths: ${{ steps.paths.outputs.value }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Get parts
+        id: paths
+        run: |
+          files=$(find ${{ inputs.HADOLINT_CHECK_DIR }} -type f -name Dockerfile | sed "s/.*/'&'/" | paste -sd, -)
+          echo "value=[${files}]" >> "$GITHUB_OUTPUT"
+
+  liner:
+    if: ${{ inputs.HADOLINT_CHECK_ENABLE }}
+    needs: vars
+    name: hadolint check dockerfiles
+    runs-on: ${{ inputs.RUNS_ON }}
+    strategy:
+      matrix:
+        path: ${{ fromJson(needs.vars.outputs.paths) }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: hadolint/hadolint-action@v3.3.0
+        with:
+          dockerfile: ${{ matrix.path }}

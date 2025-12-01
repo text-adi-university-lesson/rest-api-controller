@@ -1,0 +1,163 @@
+name: Build
+
+on:
+  push:
+    branches: 
+      - dev 
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+  packages: write # This is required for save docker images
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-build"
+  cancel-in-progress: true
+
+
+
+jobs:
+  vars:
+    name: Generation vars
+    runs-on: ubuntu-24.04
+    outputs:
+      namespace: ${{ steps.dynamic.outputs.NAMESPACE }}
+    steps:
+      - name: Create dynamic vars
+        id: dynamic
+        run: |
+          echo "NAMESPACE=${{ vars.NAMESPACE_PREFIX }}-${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+  test-docker:
+    needs: [ vars ]
+    uses: ./.github/workflows/dockerfile-test.yaml
+    with:
+      HADOLINT_CHECK_ENABLE: true
+      RUNS_ON: ubuntu-24.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-test-docker
+      cancel-in-progress: true
+
+  test-python:
+    needs: [ vars ]
+    uses: ./.github/workflows/python-test.yaml
+    with:
+      RUFF_CHECK_ENABLE: true
+      RUFF_SRC: ${{ github.workspace }}
+      RUNS_ON: ubuntu-24.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-test-common
+      cancel-in-progress: true
+
+  build_and_push:
+    needs: [ vars, test-docker, test-python ]
+    name: Build and push
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version']  }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Login to Github Containers repository
+        uses: docker/login-action@v3
+        id: login
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create meta tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha,priority=1000,prefix=sha-
+            type=raw,value=latest,priority=0
+        env:
+          DOCKER_METADATA_SHORT_SHA_LENGTH: 12
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          file: Dockerfile
+          target: prod
+          push: true
+          provenance: false
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [ vars, build_and_push ]
+    name: Deploy app to k8s
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install helmfile
+        uses: mamezou-tech/setup-helmfile@v2.1.0
+        with:
+          helmfile-version: 'v0.170.1'
+          helm-version: 'v3.17.0'
+          kubectl-version: "1.32.0"
+
+      - name: Import kubeconfig from secrets
+        run: |
+          mkdir -p ~/.kube/
+          touch ~/.kube/config
+          echo ${{ secrets.KUBECONFIG }} | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Get name release
+        env:
+          MY_SECRET_USERNAME: ${{ github.actor }}
+          MY_SECRET_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+          NAMESPACE: ${{ needs.vars.outputs.namespace }}
+          IMAGE_REGISTRY: ghcr.io
+          IMAGE_REPOSITORY: ${{ github.repository }}
+          IMAGE_TAG: ${{ needs.build_and_push.outputs.tag }}
+
+          DATABASE_NAME: ${{ vars.DATABASE_NAME }}
+          DATABASE_USER: ${{ vars.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ vars.DATABASE_PASSWORD }}
+          DATABASE_HOST: ${{ vars.DATABASE_HOST }}
+        id: release-name
+        working-directory: deployment/helmfile/deployments
+        run: |
+          echo "value=$(helmfile list | awk 'NR > 1 {print $1}')" >> "$GITHUB_OUTPUT"
+
+      - name: Check revision helmchart
+        id: revision-number
+        run: |
+          echo "value=$(helm history ${{ steps.release-name.outputs.value }} -n ${{ needs.vars.outputs.namespace }} -o json | jq '.[-1].revision')" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy add by helmfile
+        env:
+          MY_SECRET_USERNAME: ${{ github.actor }}
+          MY_SECRET_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+          NAMESPACE: ${{ needs.vars.outputs.namespace }}
+          IMAGE_REGISTRY: ghcr.io
+          IMAGE_REPOSITORY: ${{ github.repository }}
+          IMAGE_TAG: ${{ needs.build_and_push.outputs.tag }}
+
+          DATABASE_NAME: ${{ vars.DATABASE_NAME }}
+          DATABASE_USER: ${{ vars.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ vars.DATABASE_PASSWORD }}
+          DATABASE_HOST: ${{ vars.DATABASE_HOST }}
+        working-directory: deployment/helmfile/deployments
+        run: |
+          helmfile -e ${{ vars.HELMFILE_ENVIRONMENTS }} apply
+
+      - name: Rollback helmchart
+        if: cancelled()
+        run: |
+          helm rollback ${{ steps.release-name.outputs.value }} -n ${{ needs.vars.outputs.namespace }} ${{ steps.revision-number.outputs.value }}
