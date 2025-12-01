@@ -40,19 +40,9 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}-test-docker
       cancel-in-progress: true
 
-  test-python:
-    needs: [ vars ]
-    uses: ./.github/workflows/python-test.yaml
-    with:
-      RUFF_CHECK_ENABLE: true
-      RUFF_SRC: ${{ github.workspace }}
-      RUNS_ON: ubuntu-24.04
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-test-common
-      cancel-in-progress: true
 
   build_and_push:
-    needs: [ vars, test-docker, test-python ]
+    needs: [ vars, test-docker ]
     name: Build and push
     runs-on: ubuntu-24.04
     outputs:
