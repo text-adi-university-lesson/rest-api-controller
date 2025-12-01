@@ -29,7 +29,12 @@ WORKDIR /app
 
 EXPOSE 3000
 
+RUN apk update && \
+    apk add --no-cache curl
+
+HEALTHCHECK --interval=10s --timeout=3s --start-period=3s --retries=2 CMD curl -f http://localhost:3000/healthcheck/live || exit 1
+
 COPY --from=build /code/.build/main /usr/local/bin/backend-service
 
-ENTRYPOINT ["backend-api"]
+ENTRYPOINT ["backend-service"]
 CMD ["run"]
