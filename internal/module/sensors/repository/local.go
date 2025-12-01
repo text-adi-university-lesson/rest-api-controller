@@ -12,40 +12,78 @@ type localParams struct {
 }
 
 type localRepository struct {
-	storage []model.TemperatureSensor
+	storageTemperature []model.TemperatureSensor
+	storageHumidity    []model.HumiditySensor
 }
 
 func NewLocalRepository(p localParams) Repository {
 	return &localRepository{
-		storage: make([]model.TemperatureSensor, 0),
+		storageTemperature: make([]model.TemperatureSensor, 0),
+		storageHumidity:    make([]model.HumiditySensor, 0),
 	}
 }
 
-func (r *localRepository) AddItem(item *model.TemperatureSensor) (*model.TemperatureSensor, error) {
-	r.storage = append(r.storage, *item)
-	return item, nil
+func (r *localRepository) AddHumidityItem(sensor *model.HumiditySensor) (*model.HumiditySensor, error) {
+	r.storageHumidity = append(r.storageHumidity, *sensor)
+	return sensor, nil
 }
-func (r *localRepository) UpdateItem(data *model.TemperatureSensor) (*model.TemperatureSensor, error) {
-	for i, item := range r.storage {
-		if item.ID == data.ID {
-			r.storage[i] = *data
+
+func (r *localRepository) UpdateHumidityItem(sensor *model.HumiditySensor) (*model.HumiditySensor, error) {
+	for i, item := range r.storageTemperature {
+		if item.ID == sensor.ID {
+			r.storageHumidity[i] = *sensor
 		}
 	}
-	return data, nil
+	return sensor, nil
 }
-func (r *localRepository) GetAllItems() ([]model.TemperatureSensor, error) {
-	return r.storage, nil
+
+func (r *localRepository) GetAllHumidityItems() ([]model.HumiditySensor, error) {
+	return r.storageHumidity, nil
 }
-func (r *localRepository) DeleteByID(id string) error {
-	for i, item := range r.storage {
-		if item.ID == id {
-			r.storage = append(r.storage[:i], r.storage[i+1:]...)
+
+func (r *localRepository) DeleteHumidityByID(s string) error {
+	for i, item := range r.storageHumidity {
+		if item.ID == s {
+			r.storageHumidity = append(r.storageHumidity[:i], r.storageHumidity[i+1:]...)
 		}
 	}
 	return nil
 }
-func (r *localRepository) GetItemByID(id string) (*model.TemperatureSensor, error) {
-	for _, item := range r.storage {
+
+func (r *localRepository) GetHumidityItemByID(s string) (*model.HumiditySensor, error) {
+	for _, item := range r.storageHumidity {
+		if item.ID == s {
+			return &item, nil
+		}
+	}
+	return nil, fmt.Errorf("item not found")
+}
+
+func (r *localRepository) AddTemperatureItem(item *model.TemperatureSensor) (*model.TemperatureSensor, error) {
+	r.storageTemperature = append(r.storageTemperature, *item)
+	return item, nil
+}
+func (r *localRepository) UpdateTemperatureItem(data *model.TemperatureSensor) (*model.TemperatureSensor, error) {
+	for i, item := range r.storageTemperature {
+		if item.ID == data.ID {
+			r.storageTemperature[i] = *data
+		}
+	}
+	return data, nil
+}
+func (r *localRepository) GetAllTemperatureItems() ([]model.TemperatureSensor, error) {
+	return r.storageTemperature, nil
+}
+func (r *localRepository) DeleteTemperatureByID(id string) error {
+	for i, item := range r.storageTemperature {
+		if item.ID == id {
+			r.storageTemperature = append(r.storageTemperature[:i], r.storageTemperature[i+1:]...)
+		}
+	}
+	return nil
+}
+func (r *localRepository) GetTemperatureItemByID(id string) (*model.TemperatureSensor, error) {
+	for _, item := range r.storageTemperature {
 		if item.ID == id {
 			return &item, nil
 		}
