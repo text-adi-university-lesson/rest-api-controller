@@ -7,14 +7,14 @@ import (
 )
 
 type CreateTemperatureSensorsDTO struct {
-	Timestamp  *time.Duration `json:"timestamp"`
-	SensorName string         `json:"sensor_name" validate:"required"`
-	Value      float64        `json:"value" validate:"required"`
-	Unit       string         `json:"unit" validate:"required"`
+	Timestamp  *time.Time `json:"timestamp"`
+	SensorName string     `json:"sensor_name" validate:"required"`
+	Value      float64    `json:"value" validate:"required"`
+	Unit       string     `json:"unit" validate:"required"`
 }
 
 func (dto *CreateTemperatureSensorsDTO) ToModel() TemperatureSensor {
-	var ts time.Duration
+	var ts = time.Now()
 	if dto.Timestamp != nil {
 		ts = *dto.Timestamp
 	}
@@ -29,10 +29,10 @@ func (dto *CreateTemperatureSensorsDTO) ToModel() TemperatureSensor {
 }
 
 type UpdateTemperatureSensorsDTO struct {
-	Timestamp  time.Duration `json:"timestamp" validate:"required"`
-	SensorName string        `json:"sensor_name" validate:"required"`
-	Value      float64       `json:"value" validate:"required"`
-	Unit       string        `json:"unit" validate:"required"`
+	Timestamp  time.Time `json:"timestamp" validate:"required"`
+	SensorName string    `json:"sensor_name" validate:"required"`
+	Value      float64   `json:"value" validate:"required"`
+	Unit       string    `json:"unit" validate:"required"`
 }
 
 func (dto *UpdateTemperatureSensorsDTO) ToModel(id string) TemperatureSensor {
@@ -46,14 +46,14 @@ func (dto *UpdateTemperatureSensorsDTO) ToModel(id string) TemperatureSensor {
 }
 
 type CreateHumiditySensorsDTO struct {
-	Timestamp  *time.Duration `json:"timestamp"`
-	SensorName string         `json:"sensor_name" validate:"required"`
-	Value      float64        `json:"value" validate:"required"`
-	Unit       string         `json:"unit" validate:"required"`
+	Timestamp  *time.Time `json:"timestamp"`
+	SensorName string     `json:"sensor_name" validate:"required"`
+	Value      float64    `json:"value" validate:"required"`
+	Unit       string     `json:"unit" validate:"required"`
 }
 
 func (dto *CreateHumiditySensorsDTO) ToModel() HumiditySensor {
-	var ts time.Duration
+	var ts = time.Now()
 	if dto.Timestamp != nil {
 		ts = *dto.Timestamp
 	}
@@ -68,10 +68,10 @@ func (dto *CreateHumiditySensorsDTO) ToModel() HumiditySensor {
 }
 
 type UpdateHumiditySensorsDTO struct {
-	Timestamp  time.Duration `json:"timestamp" validate:"required"`
-	SensorName string        `json:"sensor_name" validate:"required"`
-	Value      float64       `json:"value" validate:"required"`
-	Unit       string        `json:"unit" validate:"required"`
+	Timestamp  time.Time `json:"timestamp" validate:"required"`
+	SensorName string    `json:"sensor_name" validate:"required"`
+	Value      float64   `json:"value" validate:"required"`
+	Unit       string    `json:"unit" validate:"required"`
 }
 
 func (dto *UpdateHumiditySensorsDTO) ToModel(id string) HumiditySensor {
