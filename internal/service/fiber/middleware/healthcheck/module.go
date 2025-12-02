@@ -14,12 +14,12 @@ type Params struct {
 type Result struct {
 	fx.Out
 
-	Controller httpController.Controller `group:"controller"`
+	Middleware httpController.Controller `group:"middleware"`
 }
 
 func New(p Params) Result {
 	return Result{
-		Controller: NewController(),
+		Middleware: NewMiddleware(),
 	}
 }
 

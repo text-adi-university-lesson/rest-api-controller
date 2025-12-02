@@ -29,7 +29,7 @@ func New(p Params) Result {
 }
 
 var Module = fx.Module("entity",
-	// Controller -> Service -> Repository
+	// Middleware -> Service -> Repository
 	fx.Provide(
 		New,
 	),

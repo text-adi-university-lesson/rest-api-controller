@@ -14,6 +14,7 @@ type Params struct {
 
 	HttpApp     *fiber.App
 	Controllers []controller.Controller `group:"controller"`
+	Middlewares []controller.Controller `group:"middleware"`
 }
 type Result struct {
 	fx.Out
@@ -35,6 +36,9 @@ func New() (Result, error) {
 func Run(lc fx.Lifecycle, p Params) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
+			for _, r := range p.Middlewares {
+				r.Register(p.HttpApp)
+			}
 			for _, r := range p.Controllers {
 				r.Register(p.HttpApp)
 			}

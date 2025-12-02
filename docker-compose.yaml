@@ -6,13 +6,15 @@ services:
       - .env
     environment:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - app
 
   app:
     build:
       dockerfile: Dockerfile
       context: .
       target: prod
-    ports:
-      - "127.0.0.1:3000:3000"
+    expose:
+      - 3000
     env_file:
       - .env

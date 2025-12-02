@@ -5,14 +5,14 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 )
 
-type Controller struct {
+type Middleware struct {
 }
 
-func NewController() *Controller {
-	return &Controller{}
+func NewMiddleware() *Middleware {
+	return &Middleware{}
 }
 
-func (c *Controller) Register(app *fiber.App) {
+func (c *Middleware) Register(app *fiber.App) {
 	app.Use("/healthcheck", healthcheck.New(healthcheck.Config{
 		LivenessProbe:    func(c *fiber.Ctx) bool { return true },
 		LivenessEndpoint: "/live",

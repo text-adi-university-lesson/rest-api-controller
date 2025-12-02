@@ -5,15 +5,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-type Controller struct {
+type Middleware struct {
 }
 
-func NewController() *Controller {
-	return &Controller{}
+func NewMiddleware() *Middleware {
+	return &Middleware{}
 }
 
-func (c *Controller) Register(app *fiber.App) {
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "https://frontend.gdfgijskgalsgsfdlbhdfl.pp.ua",
-	}))
+func (c *Middleware) Register(app *fiber.App) {
+	app.Use(cors.New())
 }
