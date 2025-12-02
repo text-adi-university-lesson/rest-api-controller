@@ -1,4 +1,12 @@
 services:
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    env_file:
+      - .env
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+
   app:
     build:
       dockerfile: Dockerfile

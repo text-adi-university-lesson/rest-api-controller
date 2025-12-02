@@ -18,9 +18,9 @@ func Run(cmd *cobra.Command) {
 		sensors.Module,
 
 		recovery.Module,
-		cors.Module,
 		healthcheck.Module,
-		
+		cors.Module,
+
 		fiber.Module,
 	).Run()
 }
