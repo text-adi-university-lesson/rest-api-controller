@@ -26,11 +26,13 @@ func NewService(p Params) *Service {
 func (receiver Service) DeleteTemperatureItem(id string) error {
 	return receiver.repo.DeleteTemperatureByID(id)
 }
-func (receiver Service) CreateTemperatureItem(item *model.TemperatureSensor) (*model.TemperatureSensor, error) {
-	return receiver.repo.AddTemperatureItem(item)
+func (receiver Service) CreateTemperatureItem(item *model.CreateTemperatureSensorsDTO) (*model.TemperatureSensor, error) {
+	data := item.ToModel()
+	return receiver.repo.AddTemperatureItem(&data)
 }
-func (receiver Service) UpdateTemperatureItem(item *model.TemperatureSensor) (*model.TemperatureSensor, error) {
-	return receiver.repo.UpdateTemperatureItem(item)
+func (receiver Service) UpdateTemperatureItem(id string, item *model.UpdateTemperatureSensorsDTO) (*model.TemperatureSensor, error) {
+	data := item.ToModel(id)
+	return receiver.repo.UpdateTemperatureItem(&data)
 }
 func (receiver Service) GetTemperatureItemByID(id string) (*model.TemperatureSensor, error) {
 	return receiver.repo.GetTemperatureItemByID(id)
@@ -42,11 +44,13 @@ func (receiver Service) GetAllTemperature() ([]model.TemperatureSensor, error) {
 func (receiver Service) DeleteHumidityItem(id string) error {
 	return receiver.repo.DeleteHumidityByID(id)
 }
-func (receiver Service) CreateHumidityItem(item *model.HumiditySensor) (*model.HumiditySensor, error) {
-	return receiver.repo.AddHumidityItem(item)
+func (receiver Service) CreateHumidityItem(item *model.CreateHumiditySensorsDTO) (*model.HumiditySensor, error) {
+	data := item.ToModel()
+	return receiver.repo.AddHumidityItem(&data)
 }
-func (receiver Service) UpdateHumidityItem(item *model.HumiditySensor) (*model.HumiditySensor, error) {
-	return receiver.repo.UpdateHumidityItem(item)
+func (receiver Service) UpdateHumidityItem(id string, item *model.UpdateHumiditySensorsDTO) (*model.HumiditySensor, error) {
+	data := item.ToModel(id)
+	return receiver.repo.UpdateHumidityItem(&data)
 }
 func (receiver Service) GetHumidityItemByID(id string) (*model.HumiditySensor, error) {
 	return receiver.repo.GetHumidityItemByID(id)

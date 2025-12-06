@@ -40,9 +40,8 @@ func (c *Controller) CreateTempSensors(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": fmt.Sprintf("Invalid JSON body: %s", err.Error())})
 	}
-	data := body.ToModel()
 	// робота із даними
-	item, err := c.service.CreateTemperatureItem(&data)
+	item, err := c.service.CreateTemperatureItem(body)
 	if err != nil {
 		return err
 	}
@@ -67,9 +66,8 @@ func (c *Controller) UpdateTempSensors(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": fmt.Sprintf("Invalid JSON body: %s", err.Error())})
 	}
-	data := body.ToModel(itemID)
 	// робота із даними
-	item, err := c.service.UpdateTemperatureItem(&data)
+	item, err := c.service.UpdateTemperatureItem(itemID, body)
 	if err != nil {
 		return err
 	}
@@ -122,9 +120,8 @@ func (c *Controller) CreateHumiditySensors(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": fmt.Sprintf("Invalid JSON body: %s", err.Error())})
 	}
-	data := body.ToModel()
 	// робота із даними
-	item, err := c.service.CreateHumidityItem(&data)
+	item, err := c.service.CreateHumidityItem(body)
 	if err != nil {
 		return err
 	}
@@ -149,9 +146,8 @@ func (c *Controller) UpdateHumiditySensors(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": fmt.Sprintf("Invalid JSON body: %s", err.Error())})
 	}
-	data := body.ToModel(itemID)
 	// робота із даними
-	item, err := c.service.UpdateHumidityItem(&data)
+	item, err := c.service.UpdateHumidityItem(itemID, body)
 	if err != nil {
 		return err
 	}

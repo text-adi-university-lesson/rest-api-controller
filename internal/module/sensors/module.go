@@ -37,6 +37,6 @@ var Module = fx.Module("entity",
 		service.NewService,
 	),
 	fx.Provide(
-		repository.NewLocalRepository,
+		repository.NewDatabaseRepository,
 	),
 )

@@ -2,6 +2,7 @@ package http
 
 import (
 	"rest-api-controller/internal/module/sensors"
+	"rest-api-controller/internal/service/db"
 	"rest-api-controller/internal/service/fiber"
 	"rest-api-controller/internal/service/fiber/middleware/cors"
 	"rest-api-controller/internal/service/fiber/middleware/healthcheck"
@@ -20,6 +21,8 @@ func Run(cmd *cobra.Command) {
 		recovery.Module,
 		healthcheck.Module,
 		cors.Module,
+
+		db.Module,
 
 		fiber.Module,
 	).Run()
