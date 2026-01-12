@@ -92,7 +92,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install helmfile
-        uses: mamezou-tech/setup-helmfile@v2.1.0
+        uses: mamezou-tech/setup-helmfile@v2.2.0
         with:
           helmfile-version: 'v0.170.1'
           helm-version: 'v3.17.0'
